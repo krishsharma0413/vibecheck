@@ -36,37 +36,36 @@ def response_time(texts, username):
         last_sender = sender
         last_time = timestamp
     
-    return total_delay / reply_count if reply_count > 0 else None      
+    return total_delay / reply_count if reply_count > 0 else 0      
 
-def single_double_text_rate(texts, username) -> list[int]: #[single_rate, double_rate]
-    """
-    tells how often does the user double texts
-    """
-    single_count = 0
-    double_rate = 0
-    last_sender = ""
-    splitter = f" - {username}:"
-    double_done = False
+def single_double_text_rate(texts, username):
+    user_turn = f" - {username}:"
+    single = 0
+    double = 0
+    streak = 0
+    last_sender = None
+
     for x in texts:
-        if splitter in x:
-            sender = "user"
+        sender = "user" if user_turn in x else "other"
+
+        if sender == "user":
+            streak += 1
         else:
-            sender = "other"
-        
-        if sender == "user" and last_sender == "user" and not double_done:
-            double_rate += 1
-            if single_count > 1:
-                single_count -= 1
-            double_done = True
-        elif sender == "user" and last_sender == "other" and not double_done:
-            single_count += 1
-            double_done = False
-        else:
-            double_done = False
+            if streak == 1:
+                single += 1
+            elif streak > 1:
+                double += 1
+            streak = 0
         
         last_sender = sender
-    
-    return [single_count/(single_count+double_rate), double_rate/(single_count+double_rate)]
+
+    if streak == 1:
+        single += 1
+    elif streak > 1:
+        double += 1
+
+    total = single + double
+    return [single/total if total > 0 else 0, double/total if total > 0 else 0]
 
 
 def avg_text_volumne(texts, username):
@@ -74,7 +73,7 @@ def avg_text_volumne(texts, username):
     tells whats the average length of their text
     """
     splitter = f" - {username}:"
-    text_count = 0
+    text_count = 1
     size = 0
     for x in texts:
         if splitter in x:
@@ -99,7 +98,7 @@ def dry_text_ratio(texts, username):
     ratio of how much the user dry text compared to normal texts
     dry text is text with less than 10 characters
     """
-    total_count = 0
+    total_count = 1
     dry_texts = 0
     splitter = f" - {username}:"
     for x in texts:

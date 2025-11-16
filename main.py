@@ -1,11 +1,22 @@
+# boilerplate
+import sys
+original_stdout = sys.stdout
+file = open("vibecheck_report.txt", "w", encoding="utf-8")
+sys.stdout = Tee = type('', (), {
+    'write': lambda self, msg: (original_stdout.write(msg), file.write(msg)),
+    'flush': lambda self: (original_stdout.flush(), file.flush())
+})()
+
+
 import os
 from whoami import name
-from file_parser import text_file_parser, participants
+from file_parser import text_file_parser, participants, advance_session_parser
 from stats import response_time, single_double_text_rate, avg_text_volumne
 from stats import total_texts_sent, dry_text_ratio, session_count, min_max_avg_session_length
 from stats import total_media_count, longest_day_streak, longest_day_gap, initiation_rate
 from stats import user_hour_heatmap
-from console_graphics import spark
+from console_graphics import spark, session_report
+import json
 
 BASE_DIR = "./personal_dataset/"
 
@@ -43,7 +54,7 @@ for x in os.listdir(BASE_DIR):
 
         print(f"👤 {u1} REPORT")
         print("--------------")
-        print(f"⏱ Avg response time: {rt1/60:.2f} min")
+        print(f"🕛 Avg response time: {rt1/60:.2f} min")
         print(f"💬 Single : Double texts = {s1*100:.1f}% : {d1*100:.1f}%")
         print(f"📏 Avg text volume: {int(v1)} character per message")
         print(f"☯️ Total text sent: {t1} messages")
@@ -55,7 +66,7 @@ for x in os.listdir(BASE_DIR):
 
         print(f"👤 {u2} REPORT")
         print("--------------")
-        print(f"⏱ Avg response time: {rt2/60:.2f} min")
+        print(f"🕛 Avg response time: {rt2/60:.2f} min")
         print(f"💬 Single : Double texts = {s2*100:.1f}% : {d2*100:.1f}%")
         print(f"📏 Avg text volume: {int(v2)} character per message")
         print(f"☯️ Total text sent: {t2} messages")
@@ -87,4 +98,11 @@ for x in os.listdir(BASE_DIR):
         print(f"➡️  Longest texting streak: {longest_day_streak(texts)} days")
         print(f"➡️  Longest texting gap: {longest_day_gap(texts)} days")
         print(f"➡️  More Initiation Rate: {more_initiation}")
+        print()
+        
+        print(f"🎉 Per Session REPORT")
+        print("--------------")
+        session_report(advance_session_parser(texts))
         print("\n--------------------------------------\n")
+        
+        

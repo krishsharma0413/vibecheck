@@ -1,6 +1,9 @@
 import re
+from datetime import datetime
 
 msg_pattern = re.compile(r"^\d{2}/\d{2}/\d{4}, \d{2}:\d{2} - .*?:") # helps skip faltu lines
+fmt = "%d/%m/%Y, %H:%M"
+
 
 def text_file_parser(file_name:str) -> list[str]:
     texts = []
@@ -14,16 +17,42 @@ def text_file_parser(file_name:str) -> list[str]:
                 texts.append(x)
             else:
                 texts[-1] += x
-    
     return (texts)
 
+def advance_session_parser(texts):
+    """
+    clubs data according to the session
+    output:
+    [
+        [...], [...], [...],
+    ]
+    """
+    last_time:datetime = None
+    sessions = []
+    current_session = []
+    for x in texts:
+        timestamp = datetime.strptime(x[:17], fmt)
+        if last_time != None:
+            if (timestamp - last_time).total_seconds() >= 2700:
+                if len(current_session) > 0:
+                    sessions.append(current_session)
+                current_session = []
+        if "<Media omitted>" not in x:
+            current_session.append(x)
+        last_time = timestamp
+    if len(current_session) > 0:
+        sessions.append(current_session)
+    return sessions
 
 def participants(texts: list[str]) -> list[str]:
     participants_found = 0
     parti = []
     i = 0
     while participants_found != 2:
-        text = texts[i]
+        try:
+            text = texts[i]
+        except:
+            return parti + [""]
         a = text.split(" - ")[1]
         if len(a.split(":")) > 1:
             username = a.split(":")[0]
