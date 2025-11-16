@@ -2,3 +2,5 @@ __pycache__/
 *.env
 venv/
 personal_dataset/
+test.json
+vibecheck_report.txt
