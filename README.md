@@ -1,4 +1,4 @@
-# 💬 VibeCheck, AI-Powered WhatsApp Chat Analyzer
+# 💬 VibeCheck: AI-Powered WhatsApp Chat Analyzer
 
 ## 📌 Overview
 **VibeCheck** is a Python-based analytics engine that transforms exported WhatsApp chats into **relationship insights, emotional intelligence summaries, and vibe patterns**.
